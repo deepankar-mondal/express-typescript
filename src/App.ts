@@ -1,23 +1,29 @@
 import express, { Express, Request , Response} from 'express';
 import bodyparser from 'body-parser';
-import apiv1routers from './routes/apiv1.route';
+// controllers
+import UserController from './users/user.controller';
 
 class App {
     public express;
 
-    constructor(){
+    constructor(controllers: UserController[]){
         this.express = express();
         this.middleware();
-        this.loadRoutes()
+        this.initializeControllers(controllers);
     }
     private middleware() {
         this.express.use(bodyparser.urlencoded({extended:true}))
         this.express.use(bodyparser.json())
     }
 
-    private loadRoutes(): void {
-        this.express.use('/', apiv1routers);
-    }
+    private initializeControllers(controllers: any[]) {
+        controllers.forEach((controller: { router: any; }) => {
+            console.log(controller.router);
+          this.express.use('/', controller.router);
+        });
+      }
 }
 
-export default new App().express;
+export default new App([
+    new UserController()
+]).express;
